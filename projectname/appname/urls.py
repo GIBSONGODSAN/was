@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RouteAPIView
+from .views import RecordAPIView
 urlpatterns = [
-        path('route/', RouteAPIView.as_view(), name='user-login'),
+        path('route/', RecordAPIView.as_view(), name='user-login'),
 ]
