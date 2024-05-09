@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Form Submission</title>
+<script>
+function sendData() {
+    // Gather form data
+    var text1 = document.getElementById("text1").value;
+    var int1 = parseInt(document.getElementById("int1").value);
+    var text2 = document.getElementById("text2").value;
+    var boolean1 = document.getElementById("boolean1").checked;
+
+    // Create data dictionary
+    var data = {
+        "value1": text1,
+        "value2": int1,
+        "value3": text2,
+        "value4": boolean1
+    };
+
+    // Send data to URL
+    fetch('http://127.0.0.1:8000/api/route/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data);
+        alert('Data sent successfully!');
+    })
+    .catch(error => {
+        console.error('There was a problem with your fetch operation:', error);
+        alert('Error sending data!');
+    });
+}
+
+function getData() {
+    
+    var text3 = document.getElementById("text3").value;
+
+    fetch('http://127.0.0.1:8000/api/route/?value1=' + encodeURIComponent(text3), {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data);
+        document.getElementById("response").innerHTML = JSON.stringify(data);
+        alert('Data received successfully!');
+    })
+    .catch(error => {
+        console.error('There was a problem with your fetch operation:', error);
+        alert('Error receiving data!');
+    });
+}
+</script>
+</head>
+<body>
+<h2>Form</h2>
+<form id="myForm">
+    <label for="text1">Text Field 1:</label><br>
+    <input type="text" id="text1" name="text1"><br>
+    <label for="int1">Integer Field 1:</label><br>
+    <input type="number" id="int1" name="int1"><br>
+    <label for="text2">Text Field 2:</label><br>
+    <input type="text" id="text2" name="text2"><br>
+    <label for="boolean1">Boolean Field 1:</label><br>
+    <input type="checkbox" id="boolean1" name="boolean1"><br><br>
+    <button type="button" onclick="sendData()">Submit</button>
+</form>
+
+<form id="getForm">
+    <label for="text1">Text Field 1:</label><br>
+    <input type="text" id="text3" name="text3"><br>
+    <button type="button" onclick="getData()">Submit</button>
+</form>
+
+<div id="response"></div>
+</body>
+</html>

@@ -4,42 +4,39 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import Records
+from .serializers import RecordSerializer
 
 class RecordAPIView(APIView):
     def post(self, request):
-        data = request.data
-        value1 = data.get('value1')
-        value2 = data.get('value2')
-        value3 = data.get('value3')
-        value4 = data.get('value4')
-        record = Records(value1=value1, value2=value2, value3=value3, value4=value4)
-        record.save()
-        return Response({'status': 'Record created'}, status=status.HTTP_201_CREATED)
+        try:
+            data = request.data
+            serializer = RecordSerializer(data=data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'status': 'Record created'}, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'status': 'Record not created'}, status=status.HTTP_400_BAD_REQUEST)
+        
     
     def get(self, request):
-        records = Records.objects.all()
-        data = []
-        for record in records:
-            data.append({
-                'value1': record.value1,
-                'value2': record.value2,
-                'value3': record.value3,
-                'value4': record.value4
-            })
-        return Response(data, status=status.HTTP_200_OK)
+        try:
+            param = request.query_params.get('value1')
+            record = Records.objects.get(value1=param)
+            serializer = RecordSerializer(record)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Records.DoesNotExist:
+            return Response({'status': 'Record not found'}, status=status.HTTP_404_NOT_FOUND)
     
     def put(self, request):
         data = request.data
         value1 = data.get('value1')
-        value2 = data.get('value2')
-        value3 = data.get('value3')
-        value4 = data.get('value4')
         record = Records.objects.get(value1=value1)
-        record.value2 = value2
-        record.value3 = value3
-        record.value4 = value4
-        record.save()
-        return Response({'status': 'Record updated'}, status=status.HTTP_200_OK)
+        serializer = RecordSerializer(record, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'status': 'Record updated'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request):
         data = request.data
